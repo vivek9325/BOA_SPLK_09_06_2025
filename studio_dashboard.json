@@ -1,0 +1,179 @@
+{
+    "title": "vk_studio_dashboard",
+    "description": "",
+    "inputs": {
+        "input_global_trp": {
+            "options": {
+                "defaultValue": "-24h@h,now",
+                "token": "global_time"
+            },
+            "title": "Global Time Range",
+            "type": "input.timerange"
+        },
+        "input_jAi9FTjG": {
+            "context": {
+                "formattedConfig": {
+                    "number": {
+                        "prefix": ""
+                    }
+                },
+                "formattedStatics": ">statics | formatByType(formattedConfig)",
+                "label": ">primary | seriesByName(\"severity\") | renameSeries(\"label\") | formatByType(formattedConfig)",
+                "statics": [
+                    [
+                        "All"
+                    ],
+                    [
+                        "*"
+                    ]
+                ],
+                "value": ">primary | seriesByName(\"severity\") | renameSeries(\"value\") | formatByType(formattedConfig)"
+            },
+            "dataSources": {
+                "primary": "ds_sv39P3ik"
+            },
+            "options": {
+                "defaultValue": "*",
+                "items": ">frame(label, value) | prepend(formattedStatics) | objects()",
+                "token": "dd_7157itps"
+            },
+            "title": "Severity",
+            "type": "input.dropdown"
+        }
+    },
+    "defaults": {
+        "dataSources": {
+            "ds.search": {
+                "options": {
+                    "queryParameters": {
+                        "earliest": "$global_time.earliest$",
+                        "latest": "$global_time.latest$"
+                    }
+                }
+            }
+        }
+    },
+    "visualizations": {
+        "viz_Ql5E6S5A": {
+            "dataSources": {
+                "primary": "ds_jbEGQZUL"
+            },
+            "options": {},
+            "type": "splunk.line"
+        },
+        "viz_ZuuEn5t2": {
+            "containerOptions": {
+                "visibility": {}
+            },
+            "dataSources": {
+                "primary": "ds_GBoQzZzM"
+            },
+            "description": "Count by ticket state",
+            "options": {
+                "backgroundColor": "#f8be34",
+                "xAxisTitleText": "Ticket State",
+                "yAxisTitleText": "Total"
+            },
+            "title": "Ticket State",
+            "type": "splunk.column"
+        }
+    },
+    "dataSources": {
+        "ds_GBoQzZzM": {
+            "name": "ticket_state",
+            "options": {
+                "extend": "ds_fXVdJ9Li",
+                "query": "| search severity=$dd_7157itps$| stats count by current_ticket_state"
+            },
+            "type": "ds.chain"
+        },
+        "ds_O8jNqvRM": {
+            "name": "vk_report",
+            "options": {
+                "app": "search",
+                "ref": "vk_report"
+            },
+            "type": "ds.savedSearch"
+        },
+        "ds_fXVdJ9Li": {
+            "name": "Search_1",
+            "options": {
+                "query": "index=vk_idx source=Sample_tickets.csv \n|  stats count by severity, current_ticket_state, asset_id",
+                "queryParameters": {
+                    "earliest": "0",
+                    "latest": ""
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_jbEGQZUL": {
+            "name": "Search_2",
+            "options": {
+                "extend": "ds_O8jNqvRM",
+                "query": "| stats count by current_ticket_state"
+            },
+            "type": "ds.chain"
+        },
+        "ds_sv39P3ik": {
+            "name": "severity",
+            "options": {
+                "extend": "ds_fXVdJ9Li",
+                "query": "| stats count by severity"
+            },
+            "type": "ds.chain"
+        }
+    },
+    "layout": {
+        "globalInputs": [
+            "input_global_trp",
+            "input_jAi9FTjG"
+        ],
+        "layoutDefinitions": {
+            "layout_1": {
+                "options": {
+                    "backgroundImage": {
+                        "sizeType": "contain",
+                        "src": "splunk-enterprise-kvstore://684bfb38f18efd4ea30b4786",
+                        "x": 0,
+                        "y": 0
+                    },
+                    "display": "auto",
+                    "height": 960,
+                    "width": 1440
+                },
+                "structure": [
+                    {
+                        "item": "viz_ZuuEn5t2",
+                        "position": {
+                            "h": 390,
+                            "w": 760,
+                            "x": 0,
+                            "y": 0
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_Ql5E6S5A",
+                        "position": {
+                            "h": 390,
+                            "w": 680,
+                            "x": 760,
+                            "y": 0
+                        },
+                        "type": "block"
+                    }
+                ],
+                "type": "absolute"
+            }
+        },
+        "options": {},
+        "tabs": {
+            "items": [
+                {
+                    "label": "ServiceNow",
+                    "layoutId": "layout_1"
+                }
+            ]
+        }
+    }
+}
